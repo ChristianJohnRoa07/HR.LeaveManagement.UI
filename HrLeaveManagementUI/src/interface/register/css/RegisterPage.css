@@ -1,0 +1,112 @@
+/* Centering the login card on the screen */
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 90vh;
+
+  font-family: 'Inter', sans-serif;
+}
+
+.register-card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.register-card h1 {
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.register-card p {
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+.input-group {
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
+.button-group { 
+    display: grid;       
+    gap: 15px;          
+    margin-top: 1rem;
+}
+
+.button-group button {
+    flex: 1;
+}
+
+button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background-color: #1d4ed8;
+}
+
+button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.back-nav {
+    margin-bottom: 1rem;
+}
+
+.icon-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px !important;    /* Force square dimensions */
+    height: 40px !important;
+    border-radius: 50% !important; /* Make it a circle */
+    background-color: #f3f4f6 !important; /* Light gray background */
+    color: #374151 !important;
+    border: 1px solid #d1d5db !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0 !important;
+}
+
+.icon-button:hover {
+    background-color: #e5e7eb !important;
+    color: #2563eb !important;
+    transform: translateX(-3px); /* Subtle nudge to the left */
+}
+
+.icon-button span {
+    font-size: 1.2rem;
+    line-height: 0;
+}
