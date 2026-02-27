@@ -22,8 +22,11 @@ function LoginPage() {
         setLoading(true);
 
         try {
+
             await login(email, password);
-            alert("Login Successful! Check console for data.");
+
+            cleanInputs();
+
         } catch (err) {
             alert("Login Failed. Check your API connection.");
             console.log(err)
@@ -34,6 +37,11 @@ function LoginPage() {
 
     const handleNavigate = () => {
         navigateToRoute("/register");
+    }
+
+    const cleanInputs = () => {
+        setEmail('');
+        setPassword('');
     }
 
     return (
