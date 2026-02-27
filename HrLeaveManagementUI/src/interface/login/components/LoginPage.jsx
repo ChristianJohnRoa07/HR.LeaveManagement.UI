@@ -26,6 +26,7 @@ function LoginPage() {
             alert("Login Successful! Check console for data.");
         } catch (err) {
             alert("Login Failed. Check your API connection.");
+            console.log(err)
         } finally {
             setLoading(false);
         }
