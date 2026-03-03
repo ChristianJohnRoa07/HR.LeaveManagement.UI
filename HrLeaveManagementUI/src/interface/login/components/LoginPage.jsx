@@ -23,9 +23,12 @@ function LoginPage() {
 
         try {
 
-            await login(email, password);
+            var loginStatus = await login(email, password);
 
-            cleanInputs();
+            if (loginStatus) {
+                navigateToRoute("/dashboard");
+                cleanInputs();
+            }
 
         } catch (err) {
             alert("Login Failed. Check your API connection.");
@@ -42,6 +45,7 @@ function LoginPage() {
     const cleanInputs = () => {
         setEmail('');
         setPassword('');
+        setLoading(false);
     }
 
     return (
