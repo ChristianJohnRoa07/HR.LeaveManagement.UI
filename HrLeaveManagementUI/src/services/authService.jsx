@@ -17,7 +17,10 @@ export const login = async (email, password) => {
     const userData = response.data;
 
     saveSecureSession(userData);
+
+    return true;
   } catch (error) {
     console.error("Error fetching data:", error);
+    return false;
   }
 };
