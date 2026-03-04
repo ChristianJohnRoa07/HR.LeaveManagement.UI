@@ -14,5 +14,13 @@ export const handleCookie = () => {
         return Cookies.get('user_session');
     }
 
-    return { storeToCookie, getFromCookie };
+    const deleteCookie = () => {
+        Cookies.remove('user_session', { path: '/' });
+    }
+
+    return { 
+        storeToCookie, 
+        getFromCookie, 
+        deleteCookie 
+    };
 }
