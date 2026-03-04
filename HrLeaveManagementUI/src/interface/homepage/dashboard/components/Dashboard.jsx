@@ -1,21 +1,56 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    Clock,
+    House,
     CheckCircle,
-    AlertCircle,
-    FileText, 
+    AlertOctagon,
+    FileText,
 } from 'lucide-react';
 import '../css/Dashboard.css';
+
+import { getUserLeaveAllocations } from '../../../../services/userService';
 
 import CustomSidebar from '../../sidebar/components/Sidebar';
 
 const Dashboard = () => {
-    // Mock data for the UI
+    const [totalLeaves, setTotalLeaves] = useState(0);
+    const [usedLeaves, setUsedLeaves] = useState(0);
+    const [vacationLeaves, setVacationLeaves] = useState(0);
+    const [sickLeave, setSickLeaves] = useState(0);
+
+    // Call user details immediately
+    useEffect(() => {
+        getUserLeaveAllocationsDetails();
+    }, []);
+
+    const getUserLeaveAllocationsDetails = async () => {
+        const result = await getUserLeaveAllocations();
+
+        if (result.status) {
+            const totalLeavesAllocation = result.response.totalAllocatedDays;
+            const allocations = result.response.allocations;
+
+            setTotalLeaves(totalLeavesAllocation);
+
+            const vacationData = allocations.find(item => item.leaveType.name === "Vacation");
+            if (vacationData) {
+                setVacationLeaves(vacationData.numberOfDays);
+            }
+
+            const sickData = allocations.find(item => item.leaveType.name === "Sick");
+            if (sickData) {
+                setSickLeaves(sickData.numberOfDays);
+            }
+        }
+        else {
+            console.log("Error: ", result.error)
+        }
+    }
+
     const stats = [
-        { label: 'Total Leaves', value: '24', icon: <FileText color="#3b82f6" />, color: 'blue' },
-        { label: 'Used Leaves', value: '10', icon: <CheckCircle color="#10b981" />, color: 'green' },
-        { label: 'Pending', value: '2', icon: <Clock color="#f59e0b" />, color: 'orange' },
-        { label: 'Sick Leave', value: '5', icon: <AlertCircle color="#ef4444" />, color: 'red' },
+        { label: 'Total Leaves', value: totalLeaves, icon: <FileText color="#3b82f6" />, color: 'blue' },
+        { label: 'Used Leaves', value: usedLeaves, icon: <CheckCircle color="#10b981" />, color: 'green' },
+        { label: 'Vacation Leave', value: vacationLeaves, icon: <House color="#f59e0b" />, color: 'orange' },
+        { label: 'Sick Leave', value: sickLeave, icon: <AlertOctagon color="#ef4444" />, color: 'red' },
     ];
 
     return (
