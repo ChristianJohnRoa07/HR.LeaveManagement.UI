@@ -8,7 +8,13 @@ import {
 } from 'lucide-react';
 import '../css/Sidebar.css';
 
-const CustomSidebar = () => {
+
+
+const CustomSidebar = (props) => {
+
+    const { handleLogout } = props;
+
+ 
 
     return (
         <nav className="sidebar">
@@ -21,7 +27,7 @@ const CustomSidebar = () => {
                 <li><Settings size={20} /> Settings</li>
             </ul>
             <div className="logout-section">
-                <button className="logout-btn"><LogOut size={18} /> Logout</button>
+                <button className="logout-btn" onClick={handleLogout}><LogOut size={18} /> Logout</button>
             </div>
         </nav>
     );
