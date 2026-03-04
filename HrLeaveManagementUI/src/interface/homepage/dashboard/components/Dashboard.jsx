@@ -8,14 +8,21 @@ import {
 import '../css/Dashboard.css';
 
 import { getUserLeaveAllocations } from '../../../../services/userService';
+import { useRouteNavigation } from '../../../../utils/hooks/navigateRoute';
+import { handleCookie } from '../../../../utils/hooks/handleCookie';
+import { logout } from '../../../../services/authService';
 
 import CustomSidebar from '../../sidebar/components/Sidebar';
+
 
 const Dashboard = () => {
     const [totalLeaves, setTotalLeaves] = useState(0);
     const [usedLeaves, setUsedLeaves] = useState(0);
     const [vacationLeaves, setVacationLeaves] = useState(0);
     const [sickLeave, setSickLeaves] = useState(0);
+
+    const { navigateToRoute } = useRouteNavigation();
+    const { deleteCookie } = handleCookie();
 
     // Call user details immediately
     useEffect(() => {
@@ -46,6 +53,20 @@ const Dashboard = () => {
         }
     }
 
+    const handleLogout = async () => {
+
+        try {
+            await logout();
+        } catch (error) {
+            console.error("Backend logout failed:", error);
+        }
+        finally {
+            navigateToRoute("/login");
+            deleteCookie();
+        }
+
+    }
+
     const stats = [
         { label: 'Total Leaves', value: totalLeaves, icon: <FileText color="#3b82f6" />, color: 'blue' },
         { label: 'Used Leaves', value: usedLeaves, icon: <CheckCircle color="#10b981" />, color: 'green' },
@@ -56,7 +77,7 @@ const Dashboard = () => {
     return (
         <div className="dashboard-wrapper">
             {/* Sidebar */}
-            <CustomSidebar />
+            <CustomSidebar handleLogout={handleLogout} />
 
             {/* Main Content */}
             <main className="main-content">
