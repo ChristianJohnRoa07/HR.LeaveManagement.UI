@@ -1,6 +1,6 @@
 
 import { useEncryptDecrypt } from "../hooks/encryptDecryptData";
-import { handleCookie } from "../hooks/storeToCookie";
+import { handleCookie } from "../hooks/handleCookie";
 
 export const useAuthManager = () => {
 
