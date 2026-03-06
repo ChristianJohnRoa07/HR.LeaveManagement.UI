@@ -31,3 +31,25 @@ export const getUserLeaveAllocations = async () => {
         };
     }
 };
+
+export const getUserName = async () => {
+    const { retrieveSession } = useAuthManager();
+
+    try {
+
+        const userData = retrieveSession();
+
+        const userName = userData.userName;
+
+        return {
+            status: true,
+            response: userName
+        };
+
+    } catch (error) {
+        return {
+            status: false,
+            error: error.response?.data || error.message
+        };
+    }
+}
