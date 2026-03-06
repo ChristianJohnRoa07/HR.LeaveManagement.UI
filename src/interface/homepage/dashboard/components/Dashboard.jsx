@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import '../css/Dashboard.css';
 
-import { getUserLeaveAllocations } from '../../../../services/userService';
+import { getUserLeaveAllocations, getUserName } from '../../../../services/userService';
 import { useRouteNavigation } from '../../../../utils/hooks/navigateRoute';
 import { handleCookie } from '../../../../utils/hooks/handleCookie';
 import { logout } from '../../../../services/authService';
@@ -20,6 +20,7 @@ const Dashboard = () => {
     const [usedLeaves, setUsedLeaves] = useState(0);
     const [vacationLeaves, setVacationLeaves] = useState(0);
     const [sickLeave, setSickLeaves] = useState(0);
+    const [userName, setUserName] = useState("");
 
     const { navigateToRoute } = useRouteNavigation();
     const { deleteCookie } = handleCookie();
@@ -27,6 +28,7 @@ const Dashboard = () => {
     // Call user details immediately
     useEffect(() => {
         getUserLeaveAllocationsDetails();
+        getUserNameDetails();
     }, []);
 
     const getUserLeaveAllocationsDetails = async () => {
@@ -51,6 +53,19 @@ const Dashboard = () => {
         else {
             console.log("Error: ", result.error)
         }
+    }
+
+    const getUserNameDetails = async () => {
+        const result = await getUserName();
+
+
+        if (result.status) {
+            setUserName(result.response);
+        }
+        else {
+            console.log("Error: ", result.error)
+        }
+
     }
 
     const handleLogout = async () => {
@@ -82,7 +97,7 @@ const Dashboard = () => {
             {/* Main Content */}
             <main className="main-content">
                 <header className="top-nav">
-                    <h2>Welcome back, Admin</h2>
+                    <h2>Welcome back, {userName}!</h2>
                     <div className="user-profile">
                         <img src="https://ui-avatars.com/api/?name=Admin+User" alt="Avatar" />
                     </div>
