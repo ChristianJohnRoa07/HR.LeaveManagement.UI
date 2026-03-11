@@ -13,6 +13,8 @@ function LoginPage() {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const [errorMessage, setErrorMessage] = useState("");
+
     const { navigateToRoute } = useRouteNavigation();
 
     const handleLogin = async (e) => {
@@ -21,20 +23,19 @@ function LoginPage() {
 
         setLoading(true);
 
-        try {
+        var loginStatus = await login(email, password);
 
-            var loginStatus = await login(email, password);
+        if (loginStatus.success) {
+            navigateToRoute("/dashboard");
+            cleanInputs();
+        }
+        else {
 
-            if (loginStatus) {
-                navigateToRoute("/dashboard");
-                cleanInputs();
-            }
+            cleanUinUponError();
 
-        } catch (err) {
-            alert("Login Failed. Check your API connection.");
-            console.log(err)
-        } finally {
-            setLoading(false);
+            var message = loginStatus.message;
+
+            setErrorMessage(message);
         }
     };
 
@@ -45,14 +46,24 @@ function LoginPage() {
     const cleanInputs = () => {
         setEmail('');
         setPassword('');
+        setErrorMessage('');
+        setLoading(false);
+    }
+
+    const cleanUinUponError = () => {
         setLoading(false);
     }
 
     return (
         <div className="login-container">
             <div className="login-card">
+
                 <h1>HR Leave Management System</h1>
-                <p>Please enter your credentials</p>
+                {errorMessage ? (
+                    <p style={{color: '#b91c1c'}}>{errorMessage}</p>
+                ) : (
+                    <p>Please enter your credentials</p>
+                )}
 
                 <form onSubmit={handleLogin}>
                     <div className="input-group">
