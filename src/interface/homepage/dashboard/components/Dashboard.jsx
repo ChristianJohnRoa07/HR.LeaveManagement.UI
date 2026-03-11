@@ -22,6 +22,9 @@ const Dashboard = () => {
     const [sickLeave, setSickLeaves] = useState(0);
     const [userName, setUserName] = useState("");
 
+    const [errorStatus, setErrorStatus] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+
     const { navigateToRoute } = useRouteNavigation();
     const { deleteCookie } = handleCookie();
 
@@ -70,16 +73,17 @@ const Dashboard = () => {
 
     const handleLogout = async () => {
 
-        try {
-            await logout();
-        } catch (error) {
-            console.error("Backend logout failed:", error);
-        }
-        finally {
-            navigateToRoute("/login");
-            deleteCookie();
-        }
+        const response = await logout();
 
+        if (response.status) {
+            setErrorStatus(false);
+            deleteCookie();
+            navigateToRoute("/login");
+        }
+        else {
+            setErrorStatus(true);
+            setErrorMessage(response.message);
+        }
     }
 
     const stats = [
@@ -96,6 +100,19 @@ const Dashboard = () => {
 
             {/* Main Content */}
             <main className="main-content">
+
+                {errorMessage && (
+                    <div className="alert alert-danger" style={{
+                        backgroundColor: '#fee2e2',
+                        color: '#b91c1c',
+                        padding: '10px',
+                        borderRadius: '5px',
+                        marginBottom: '10px'
+                    }}>
+                        <strong>Error: </strong> {errorMessage}
+                    </div>
+                )}
+
                 <header className="top-nav">
                     <h2>Welcome back, {userName}!</h2>
                     <div className="user-profile">

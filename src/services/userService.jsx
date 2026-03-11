@@ -19,10 +19,14 @@ export const getUserLeaveAllocations = async () => {
             }
         });
 
-        return {
-            status: true,
-            response: response.data
-        };
+        const leaveAllocationDetails = response.data;
+
+        if (leaveAllocationDetails.success) {
+            return {
+                status: true,
+                response: leaveAllocationDetails.data
+            };
+        }
 
     } catch (error) {
         return {
