@@ -5,6 +5,9 @@ import '../css/RegisterPage.css'
 
 import { useRouteNavigation } from '../../../utils/hooks/navigateRoute';
 
+
+import { register } from '../../../services/authService';
+
 function RegisterPage() {
 
     const [firstName, setFirstName] = useState("");
@@ -19,15 +22,28 @@ function RegisterPage() {
 
     const handleRegister = async (e) => {
 
-        e.preventDefault(); // Prevents the page from refreshing
+        e.preventDefault(); 
 
         setLoading(true);
 
         try {
-            // await login(email, password);
-            alert("Login Successful! Check console for data.");
+            const registerResponse = await register(firstName, lastName, email, userName, password);
+
+            const response = registerResponse.data;
+
+            const registerStatus = response.creationStatus;
+
+            if (registerStatus) {
+                alert("Registration Successful! Please login your account.");
+
+                navigateToRoute("/login");
+            } else {
+                const errorMessages = response.errors;
+                alert("Registration Error:\n" + errorMessages);
+            }
+
         } catch (err) {
-            alert("Login Failed. Check your API connection.");
+            alert(`Connection Error: ${err}`);
         } finally {
             setLoading(false);
         }
@@ -55,7 +71,8 @@ function RegisterPage() {
                     <div className="input-group">
                         <label>Firstname</label>
                         <input
-                            type="firstName"
+                            type="First Name"
+                            placeholder='First Name'
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                             required
@@ -63,9 +80,10 @@ function RegisterPage() {
                     </div>
 
                     <div className="input-group">
-                        <label>Lastname</label>
+                        <label>Last Name</label>
                         <input
                             type="lastName"
+                            placeholder='Last Name'
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
                             required
@@ -76,6 +94,7 @@ function RegisterPage() {
                         <label>Email Address</label>
                         <input
                             type="email"
+                            placeholder='user@example.com'
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -86,6 +105,7 @@ function RegisterPage() {
                         <label>Username</label>
                         <input
                             type="username"
+                            placeholder='Username'
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
                             required
@@ -96,6 +116,7 @@ function RegisterPage() {
                         <label>Password</label>
                         <input
                             type="password"
+                            placeholder='Password'
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required

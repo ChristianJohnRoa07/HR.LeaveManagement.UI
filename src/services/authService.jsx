@@ -46,6 +46,70 @@ export const login = async (email, password) => {
   }
 };
 
+export const register = async (firstName, lastName, email, username, password) => {
+
+  try {
+
+    const response = await axios.post('https://localhost:7047/api/Auth/register', {
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      userName: username,
+      password: password
+    });
+
+    return response;
+
+  } catch (error) {
+    
+    if (error.response && error.response.data) {
+      return {
+        creationStatus: false,
+        errors: error.response.data.errors 
+          ? Object.values(error.response.data.errors).flat() 
+          : ["An unexpected error occurred."]
+      };
+    }
+    
+    return {
+      creationStatus: false,
+      errors: ["Cannot connect to server. Please check your API."]
+    };
+  }
+};
+
+export const register = async (firstName, lastName, email, username, password) => {
+
+  try {
+
+    const response = await axios.post('https://localhost:7047/api/Auth/register', {
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      userName: username,
+      password: password
+    });
+
+    return response;
+
+  } catch (error) {
+    
+    if (error.response && error.response.data) {
+      return {
+        creationStatus: false,
+        errors: error.response.data.errors 
+          ? Object.values(error.response.data.errors).flat() 
+          : ["An unexpected error occurred."]
+      };
+    }
+    
+    return {
+      creationStatus: false,
+      errors: ["Cannot connect to server. Please check your API."]
+    };
+  }
+};
+
 export const logout = async () => {
 
   const { retrieveSession } = useAuthManager();
