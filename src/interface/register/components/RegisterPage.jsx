@@ -5,6 +5,9 @@ import '../css/RegisterPage.css'
 
 import { useRouteNavigation } from '../../../utils/hooks/navigateRoute';
 
+
+import { register } from '../../../services/authService';
+
 function RegisterPage() {
 
     const [firstName, setFirstName] = useState("");
@@ -14,20 +17,30 @@ function RegisterPage() {
     const [password, setPassword] = useState("");
 
     const [loading, setLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(false);
 
     const { navigateToRoute } = useRouteNavigation();
 
     const handleRegister = async (e) => {
 
-        e.preventDefault(); // Prevents the page from refreshing
-
-        setLoading(true);
+        e.preventDefault();
 
         try {
-            // await login(email, password);
-            alert("Login Successful! Check console for data.");
+
+            setLoading(true);
+
+            const result = await register(firstName, lastName, email, userName, password);
+
+            if (result.creationStatus) {
+                alert("Registration Successful! Please login your account.");
+
+                navigateToRoute("/login");
+            } else {
+                setErrorMessage(result.errors);
+            }
+
         } catch (err) {
-            alert("Login Failed. Check your API connection.");
+            alert(`Connection Error: ${err}`);
         } finally {
             setLoading(false);
         }
@@ -49,13 +62,33 @@ function RegisterPage() {
                 </div>
 
                 <h1>HR Leave Management System</h1>
-                <p>Fill up necessary fields</p>
+
+                <div className="error-container" style={{ marginBottom: '15px' }}>
+                    {errorMessage ? (
+                        <ul style={{
+                            color: '#b91c1c',
+                            textAlign: 'left',
+                            fontSize: '14px',
+                            paddingLeft: '20px'
+                        }}>
+                            {/* If errorMessage is an array, map it. If it's a string, wrap it in an array first */}
+                            {(Array.isArray(errorMessage) ? errorMessage : [errorMessage]).map((error, index) => (
+                                <li key={index} style={{ marginBottom: '4px' }}>
+                                    {error}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p style={{ fontSize: '14px', color: '#666' }}>Please fill up necessary fields</p>
+                    )}
+                </div>
 
                 <form onSubmit={handleRegister}>
                     <div className="input-group">
                         <label>Firstname</label>
                         <input
-                            type="firstName"
+                            type="First Name"
+                            placeholder='First Name'
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                             required
@@ -63,9 +96,10 @@ function RegisterPage() {
                     </div>
 
                     <div className="input-group">
-                        <label>Lastname</label>
+                        <label>Last Name</label>
                         <input
                             type="lastName"
+                            placeholder='Last Name'
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
                             required
@@ -76,6 +110,7 @@ function RegisterPage() {
                         <label>Email Address</label>
                         <input
                             type="email"
+                            placeholder='user@example.com'
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -86,6 +121,7 @@ function RegisterPage() {
                         <label>Username</label>
                         <input
                             type="username"
+                            placeholder='Username'
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
                             required
@@ -96,6 +132,7 @@ function RegisterPage() {
                         <label>Password</label>
                         <input
                             type="password"
+                            placeholder='Password'
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
