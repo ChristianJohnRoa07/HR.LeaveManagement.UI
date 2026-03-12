@@ -17,29 +17,26 @@ function RegisterPage() {
     const [password, setPassword] = useState("");
 
     const [loading, setLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(false);
 
     const { navigateToRoute } = useRouteNavigation();
 
     const handleRegister = async (e) => {
 
-        e.preventDefault(); 
-
-        setLoading(true);
+        e.preventDefault();
 
         try {
-            const registerResponse = await register(firstName, lastName, email, userName, password);
 
-            const response = registerResponse.data;
+            setLoading(true);
 
-            const registerStatus = response.creationStatus;
+            const result = await register(firstName, lastName, email, userName, password);
 
-            if (registerStatus) {
+            if (result.creationStatus) {
                 alert("Registration Successful! Please login your account.");
 
                 navigateToRoute("/login");
             } else {
-                const errorMessages = response.errors;
-                alert("Registration Error:\n" + errorMessages);
+                setErrorMessage(result.errors);
             }
 
         } catch (err) {
@@ -65,7 +62,26 @@ function RegisterPage() {
                 </div>
 
                 <h1>HR Leave Management System</h1>
-                <p>Fill up necessary fields</p>
+
+                <div className="error-container" style={{ marginBottom: '15px' }}>
+                    {errorMessage ? (
+                        <ul style={{
+                            color: '#b91c1c',
+                            textAlign: 'left',
+                            fontSize: '14px',
+                            paddingLeft: '20px'
+                        }}>
+                            {/* If errorMessage is an array, map it. If it's a string, wrap it in an array first */}
+                            {(Array.isArray(errorMessage) ? errorMessage : [errorMessage]).map((error, index) => (
+                                <li key={index} style={{ marginBottom: '4px' }}>
+                                    {error}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p style={{ fontSize: '14px', color: '#666' }}>Please fill up necessary fields</p>
+                    )}
+                </div>
 
                 <form onSubmit={handleRegister}>
                     <div className="input-group">
