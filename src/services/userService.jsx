@@ -1,59 +1,61 @@
 import axios from 'axios';
 
+import { createAsyncThunk } from '@reduxjs/toolkit';
+
 import { useAuthManager } from '../utils/security/authManager';
 
-export const getUserLeaveAllocations = async () => {
+const { retrieveSession } = useAuthManager();
 
-    const { retrieveSession } = useAuthManager();
+export const getUserLeaveAllocations = createAsyncThunk(
+    'user/getLeaveAllocations',
+    async (_, { rejectWithValue }) => {
 
-    try {
+        try {
+            // Grab the auth data directly from your existing authSlice state
+            const userData = retrieveSession();
+            const user = userData
 
-        const userData = retrieveSession();
-
-        const userId = userData.id;
-        const token = userData.token;
-
-        const response = await axios.get(`https://localhost:7047/api/LeaveAllocations/${userId}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
+            if (!user || !user.token) {
+                return rejectWithValue("No valid session found");   
             }
-        });
 
-        const leaveAllocationDetails = response.data;
+            const response = await axios.get(
+                `https://localhost:7047/api/LeaveAllocations/${user.id}`,
+                {
+                    headers: { Authorization: `Bearer ${user.token}` }
+                }
+            );
 
-        if (leaveAllocationDetails.success) {
-            return {
-                status: true,
-                response: leaveAllocationDetails.data
-            };
+            const result = response.data;
+
+            if (result.success) {
+                return result.data; // This becomes the action.payload
+            } else {
+                return rejectWithValue(result.message || "Failed to fetch allocations");
+            }
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || error.message);
         }
-
-    } catch (error) {
-        return {
-            status: false,
-            error: error.response?.data || error.message
-        };
     }
-};
+);
 
-export const getUserName = async () => {
-    const { retrieveSession } = useAuthManager();
+export const getUsername = createAsyncThunk(
+    'user/getUserName',
+    async(_, {rejectWithValue}) => {
+        try {
+            const userData = retrieveSession();
 
-    try {
+            const user = userData;
+            const userName = user.userName;
 
-        const userData = retrieveSession();
-
-        const userName = userData.userName;
-
-        return {
-            status: true,
-            response: userName
-        };
-
-    } catch (error) {
-        return {
-            status: false,
-            error: error.response?.data || error.message
-        };
+            if(userName){
+                return userName
+            }
+            else{
+                return rejectWithValue("User name not found in session");
+            }
+        } catch (error) {
+            return rejectWithValue("Failed to retrieve user session");
+        }
     }
-}
+);

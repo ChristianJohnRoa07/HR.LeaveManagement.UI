@@ -1,58 +1,75 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import '../css/LoginPage.css'
+
+import { useDispatch, useSelector } from 'react-redux';
 
 import { login } from '../../../services/authService'
 
+import { clearError } from '../../../features/auth/authSlice'
+
 import { useRouteNavigation } from '../../../utils/hooks/navigateRoute';
-
-
 
 function LoginPage() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
 
     const [errorMessage, setErrorMessage] = useState("");
 
+    const dispatch = useDispatch();
+
     const { navigateToRoute } = useRouteNavigation();
+
+    const { user, isLoading, loginError } = useSelector((state) => state.auth)
+
+    // Successful login navigate to dashboard
+    useEffect(() => {
+        if (user) {
+            navigateToRoute("/dashboard");
+        }
+    }, [user, navigateToRoute])
+
+    // Encountered an error
+    useEffect(() => {
+        if (loginError) {
+            setErrorMessage(loginError);
+        }
+
+        return () => {
+            dispatch(clearError());
+        };
+    }, [loginError, dispatch])
 
     const handleLogin = async (e) => {
 
         e.preventDefault(); // Prevents the page from refreshing
 
-        setLoading(true);
+        try {
+            // .unwrap() allows you to treat the thunk like a normal promise
+            // It will throw an error if the thunk returns rejectWithValue
+            await dispatch(login({ email, password })).unwrap();
 
-        var loginStatus = await login(email, password);
-
-        if (loginStatus.success) {
-            navigateToRoute("/dashboard");
             cleanInputs();
-        }
-        else {
 
-            cleanUinUponError();
-
-            var message = loginStatus.message;
-
-            setErrorMessage(message);
+        } catch (rejectedValueOrError) {
+            setPassword('');
         }
     };
 
     const handleNavigate = () => {
         navigateToRoute("/register");
+        dispatch(clearError());
     }
 
     const cleanInputs = () => {
         setEmail('');
         setPassword('');
-        setErrorMessage('');
-        setLoading(false);
     }
 
-    const cleanUinUponError = () => {
-        setLoading(false);
-    }
+    const onEmailChange = (e) => {
+        setEmail(e.target.value);
+        if (errorMessage) setErrorMessage("");
+    };
 
     return (
         <div className="login-container">
@@ -60,7 +77,7 @@ function LoginPage() {
 
                 <h1>HR Leave Management System</h1>
                 {errorMessage ? (
-                    <p style={{color: '#b91c1c'}}>{errorMessage}</p>
+                    <p style={{ color: '#b91c1c' }}>{errorMessage}</p>
                 ) : (
                     <p>Please enter your credentials</p>
                 )}
@@ -71,7 +88,7 @@ function LoginPage() {
                         <input
                             type="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={onEmailChange}
                             required
                         />
                     </div>
@@ -86,8 +103,8 @@ function LoginPage() {
                         />
                     </div>
 
-                    <button type="submit" disabled={loading}>
-                        {loading ? "Authenticating..." : "Login"}
+                    <button type="submit" disabled={isLoading}>
+                        {isLoading ? "Authenticating..." : "Login"}
                     </button>
 
                 </form>
@@ -97,7 +114,7 @@ function LoginPage() {
                 </div>
 
                 <div className="button-register">
-                    <button onClick={handleNavigate} disabled={loading}>
+                    <button onClick={handleNavigate} disabled={isLoading}>
                         {"Register"}
                     </button>
                 </div>
