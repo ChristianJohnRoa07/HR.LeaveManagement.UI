@@ -1,50 +1,32 @@
 import axios from 'axios';
 
+import { createAsyncThunk } from '@reduxjs/toolkit';
+
 import { useAuthManager } from '../utils/security/authManager';
 
+export const login = createAsyncThunk(
+  'auth/login',
+  async ({ email, password }, thunkAPI) => {
+    try {
+      const response = await axios.post('https://localhost:7047/api/Auth/login', {
+        email,
+        password,
+      });
 
-export const login = async (email, password) => {
-
-  const { saveSecureSession } = useAuthManager();
-
-  try {
-
-    const response = await axios.post('https://localhost:7047/api/Auth/login', {
-      email: email,
-      password: password
-    });
-
-    const userReponse = response.data;
-
-    if (userReponse.success) {
-
+      const userReponse = response.data;
       const userData = userReponse.data
-      saveSecureSession(userData);
 
-      return { success: true };
-
+      if (userReponse.success) {
+        return userData; // Trigger fulfilled state
+      } else {
+        return thunkAPI.rejectWithValue(userReponse.message || "Login failed"); // Trigger rejected state
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || "No response from server";
+      return thunkAPI.rejectWithValue(message); // Trigger rejected state
     }
-
-    return { success: false, message: userResponse.message || "Login failed" };
-
-  } catch (error) {
-
-    let errorMessage = "An unexpected error occurred";
-
-    if (error.response) {
-      const data = error.response.data;
-
-      errorMessage = data.message;
-    } else if (error.request) {
-      errorMessage = "No response from server. Please check your connection.";
-    }
-
-    return {
-      success: false,
-      message: errorMessage
-    };
   }
-};
+);
 
 export const register = async (firstName, lastName, email, username, password) => {
 
