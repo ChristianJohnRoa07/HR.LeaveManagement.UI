@@ -9,7 +9,7 @@ import '../css/Dashboard.css';
 
 import { useDispatch, useSelector } from 'react-redux';
 
-import { getUserLeaveAllocations, getUsername } from '../../../../services/userService';
+import { getUserLeaveAllocations, getUsername, getUserLeaveRequests } from '../../../../services/userService';
 import { useRouteNavigation } from '../../../../utils/hooks/navigateRoute';
 import { handleCookie } from '../../../../utils/hooks/handleCookie';
 import { logout } from '../../../../services/authService';
@@ -26,12 +26,13 @@ const Dashboard = () => {
 
     const [errorMessage, setErrorMessage] = useState("");
 
-    const { userName, totalAllocatedDays, vacationDays, sickDays, isLoading } = useSelector((state) => state.user);
+    const { userName, totalAllocatedDays, vacationDays, sickDays, leaveRequests, isLoading } = useSelector((state) => state.user);
 
     // Call user details immediately
     useEffect(() => {
         dispatch(getUserLeaveAllocations()).unwrap();
         dispatch(getUsername()).unwrap();
+        dispatch(getUserLeaveRequests()).unwrap();
     }, [dispatch]);
 
     const handleLogout = async () => {
@@ -117,22 +118,56 @@ const Dashboard = () => {
                                         <th>Status</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
-                                    <tr>
-                                        <td>Annual Leave</td>
-                                        <td>Mar 10, 2026</td>
-                                        <td>Mar 15, 2026</td>
-                                        <td>5</td>
-                                        <td><span className="badge pending">Pending</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Sick Leave</td>
-                                        <td>Feb 20, 2026</td>
-                                        <td>Feb 21, 2026</td>
-                                        <td>1</td>
-                                        <td><span className="badge approved">Approved</span></td>
-                                    </tr>
+                                    {leaveRequests && leaveRequests.length > 0 ? (
+                                        leaveRequests.map((request) => {
+                                            let statusLabel = "Pending";
+                                            let statusClass = "pending";
+
+                                            if (request.approved) {
+                                                statusLabel = "Approved";
+                                                statusClass = "approved";
+                                            } else if (request.cancelled) {
+                                                statusLabel = "Cancelled";
+                                                statusClass = "cancelled";
+                                            }
+
+                                            const formatDate = (dateString) =>
+                                                new Date(dateString).toLocaleDateString("en-US", {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                    year: "numeric",
+                                                });
+
+                                            // Calculate days
+                                            const start = new Date(request.startDate);
+                                            const end = new Date(request.endDate);
+                                            const diffDays = Math.ceil(Math.abs(end - start) / (1000 * 60 * 60 * 24)) || 1;
+
+                                            return (
+                                                <tr key={request.id}>
+                                                    <td>{request.leaveType?.name || "N/A"}</td>
+                                                    <td>{formatDate(request.startDate)}</td>
+                                                    <td>{formatDate(request.endDate)}</td>
+                                                    <td>{diffDays}</td>
+                                                    <td>
+                                                        <span className={`badge ${statusClass}`}>{statusLabel}</span>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="5" className="no-data-cell">
+                                                <div className="empty-state">
+                                                    <p>No leave requests found.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
+
                             </table>
                         </section>
                     </div>
