@@ -1,7 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getUserLeaveAllocations, getUsername } from '../../services/userService';
-
-export { getUserLeaveAllocations, getUsername }
+import { 
+    getUserLeaveAllocations, 
+    getUsername, 
+    getUserLeaveRequests 
+} from '../../services/userService';
 
 const userSlice = createSlice({
     name: 'user',
@@ -10,6 +12,7 @@ const userSlice = createSlice({
         sickDays: null,
         vacationDays: null,
         totalAllocatedDays: null,
+        leaveRequests: [],
         isLoading: false,
         error: null,
     },
@@ -49,9 +52,21 @@ const userSlice = createSlice({
             .addCase(getUserLeaveAllocations.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
-            });
+            })
 
             /* --- Leave Requests Cases --- */
+            .addCase(getUserLeaveRequests.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(getUserLeaveRequests.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.leaveRequests = action.payload.leaveRequests;
+            })
+            .addCase(getUserLeaveRequests.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            });
     },
 });
 
