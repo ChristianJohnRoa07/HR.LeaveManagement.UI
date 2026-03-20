@@ -4,7 +4,9 @@ import { handleCookie } from '../../../../utils/hooks/handleCookie';
 import { useRouteNavigation } from '../../../../utils/hooks/navigateRoute';
 import { logout } from '../../../../services/authService';
 
-const MainLayout = ({ children, errorMessage, setErrorMessage }) => {
+import Alert from '../../../common/error/component/Alert';
+
+const MainLayout = ({ children, alert, setAlert }) => {
     const { navigateToRoute } = useRouteNavigation();
     const { deleteCookie } = handleCookie();
 
@@ -14,7 +16,7 @@ const MainLayout = ({ children, errorMessage, setErrorMessage }) => {
             deleteCookie();
             navigateToRoute("/login");
         } else {
-            setErrorMessage(response.message);
+            setAlert({ message: response.message, type: 'error'});
         }
     };
 
@@ -22,17 +24,11 @@ const MainLayout = ({ children, errorMessage, setErrorMessage }) => {
         <div className="dashboard-wrapper">
             <CustomSidebar handleLogout={handleLogout} />
             <main className="main-content">
-                {errorMessage && (
-                    <div className="alert alert-danger" style={{
-                        backgroundColor: '#fee2e2',
-                        color: '#b91c1c',
-                        padding: '10px',
-                        borderRadius: '5px',
-                        marginBottom: '10px'
-                    }}>
-                        <strong>Error: </strong> {errorMessage}
-                    </div>
-                )}
+                <Alert
+                    message={alert.message}
+                    type={alert.type}
+                    onClose={() => setAlert({ ...alert, message: '' })}
+                />
                 {children}
             </main>
         </div>

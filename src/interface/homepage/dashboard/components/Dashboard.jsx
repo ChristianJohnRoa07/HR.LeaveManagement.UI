@@ -23,7 +23,7 @@ const Dashboard = () => {
     const { userName } = useSelector((state) => state.user);
     const { totalAllocatedDays, vacationDays, sickDays, leaveRequests, isLoading } = useSelector((state) => state.leave);
 
-    const [errorMessage, setErrorMessage] = useState("");
+    const [alert, setAlert] = useState({ message: '', type: 'error' });
 
     // Call user details immediately
     useEffect(() => {
@@ -31,7 +31,7 @@ const Dashboard = () => {
             dispatch(getUserLeaveAllocations()).unwrap(),
             dispatch(getUsername()).unwrap(),
             dispatch(getUserLeaveRequests()).unwrap()
-        ]).catch(err => setErrorMessage("Failed to load dashboard data."));
+        ]).catch(err => setAlert({ message: "Failed to load dashboard data.", type: 'error' }));
     }, [dispatch]);
 
     const stats = [
@@ -42,7 +42,7 @@ const Dashboard = () => {
     ];
 
     return (
-        <MainLayout errorMessage={errorMessage} setErrorMessage={setErrorMessage}>
+        <MainLayout alert={alert} setAlert={setAlert}>
             {isLoading ? (
                 <div className="loading-container">
                     <div className="spinner"></div>

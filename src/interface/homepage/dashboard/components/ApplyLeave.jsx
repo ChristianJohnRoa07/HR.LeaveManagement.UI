@@ -7,14 +7,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getLeaveTypes } from '../../../../services/leaveTypeService';
 import { applyLeaveRequest } from '../../../../services/leaveRequestService';
 
-import Alert from '../../../common/error/component/Alert';
-
 const ApplyLeave = () => {
     const dispatch = useDispatch();
 
     const { leaveTypes, isLoading } = useSelector((state) => state.leave);
-
-    const [errorMessage, setErrorMessage] = useState("");
 
     const [formData, setFormData] = useState({
         leaveTypeId: '',
@@ -29,7 +25,7 @@ const ApplyLeave = () => {
         if (leaveTypes.length === 0) {
             Promise.all([
                 dispatch(getLeaveTypes()).unwrap(),
-            ]).catch(err => setErrorMessage("Failed to load dashboard data."));
+            ]).catch(err => setAlert({ message: "Failed to load dashboard data.", type: 'error' }));
         }
     }, [leaveTypes.length, dispatch]);
 
@@ -51,7 +47,7 @@ const ApplyLeave = () => {
     };
 
     return (
-        <MainLayout>
+        <MainLayout alert={alert} setAlert={setAlert}>
             <div className="apply-leave-container">
                 <header className="page-header">
                     <h2>Request Leave</h2>
@@ -59,11 +55,6 @@ const ApplyLeave = () => {
                 </header>
 
                 <div className="form-card">
-                    <Alert
-                        message={alert.message}
-                        type={alert.type}
-                        onClose={() => setAlert({ ...alert, message: '' })}
-                    />
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label><FileText size={16} /> Leave Type</label>

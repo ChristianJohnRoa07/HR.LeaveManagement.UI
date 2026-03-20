@@ -9,18 +9,20 @@ import { clearError } from '../../../features/auth/authSlice'
 
 import { useRouteNavigation } from '../../../utils/hooks/navigateRoute';
 
+import Alert from '../../../interface/common/error/component/Alert';
+
 function LoginPage() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const [errorMessage, setErrorMessage] = useState("");
+     const [alert, setAlert] = useState({ message: '', type: 'error' });
 
     const dispatch = useDispatch();
 
     const { navigateToRoute } = useRouteNavigation();
 
-    const { user, isLoading, loginError } = useSelector((state) => state.auth)
+    const { user, isLoading } = useSelector((state) => state.auth)
 
     // Successful login navigate to dashboard
     useEffect(() => {
@@ -28,17 +30,6 @@ function LoginPage() {
             navigateToRoute("/dashboard");
         }
     }, [user, navigateToRoute])
-
-    // Encountered an error
-    useEffect(() => {
-        if (loginError) {
-            setErrorMessage(loginError);
-        }
-
-        return () => {
-            dispatch(clearError());
-        };
-    }, [loginError, dispatch])
 
     const handleLogin = async (e) => {
 
@@ -51,7 +42,11 @@ function LoginPage() {
 
             cleanInputs();
 
-        } catch (rejectedValueOrError) {
+        } catch (error) {
+            setAlert({ 
+                message: error || "Invalid credentials. Please try again.", 
+                type: 'error' 
+            });
             setPassword('');
         }
     };
@@ -66,18 +61,17 @@ function LoginPage() {
         setPassword('');
     }
 
-    const onEmailChange = (e) => {
-        setEmail(e.target.value);
-        if (errorMessage) setErrorMessage("");
-    };
-
     return (
         <div className="login-container">
             <div className="login-card">
 
                 <h1>HR Leave Management System</h1>
-                {errorMessage ? (
-                    <p style={{ color: '#b91c1c' }}>{errorMessage}</p>
+                {alert.message ? (
+                    <Alert
+                        message={alert.message}
+                        type={alert.type}
+                        onClose={() => setAlert({ ...alert, message: '' })}
+                    />
                 ) : (
                     <p>Please enter your credentials</p>
                 )}
@@ -88,7 +82,7 @@ function LoginPage() {
                         <input
                             type="email"
                             value={email}
-                            onChange={onEmailChange}
+                            onChange={(e) => setEmail(e.target.value)}
                             required
                         />
                     </div>
