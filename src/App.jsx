@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import LoginPage from './interface/login/components/LoginPage'
 import RegisterPage from './interface/register/components/RegisterPage'
 import Dashboard from './interface/homepage/dashboard/components/Dashboard';
+import ApplyLeave from './interface/homepage/dashboard/components/ApplyLeave';
 
 
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path='/dashboard' element={<Dashboard />}/>
+        <Route path='/apply-leave' element={<ApplyLeave />}/>
 
         <Route path="*" element={<h1>404 - Page Not Found</h1>} />
 
