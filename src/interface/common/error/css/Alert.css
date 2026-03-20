@@ -1,0 +1,57 @@
+.alert-container {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    gap: 12px; 
+}
+
+/* Error specific styles */
+.alert-error {
+    background-color: #fef2f2;
+    border-color: #fee2e2;
+    border-left: 4px solid #ef4444;
+    color: #b91c1c;
+}
+
+/* Success specific styles */
+.alert-success {
+    background-color: #f0fdf4;
+    border-color: #dcfce7;
+    border-left: 4px solid #22c55e;
+    color: #15803d;
+}
+
+.alert-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1; 
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px; 
+    width: auto;   
+    height: auto;  
+    flex-shrink: 0; 
+    color: inherit;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.close-btn:hover {
+    opacity: 1;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
