@@ -28,57 +28,54 @@ export const login = createAsyncThunk(
   }
 );
 
-export const register = async (firstName, lastName, email, username, password) => {
+export const register = createAsyncThunk(
+  'auth/register',
+  async ({ firstName, lastName, email, username, password }, thunkAPI) => {
 
-  try {
+    try {
 
-    const response = await axios.post('https://localhost:7047/api/Auth/register', {
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      userName: username,
-      password: password
-    });
+      const response = await axios.post('https://localhost:7047/api/Auth/register', {
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        userName: username,
+        password: password
+      });
 
-    const responseData = response.data.data;
+      const res = response.data.data
 
-    return {
-      creationStatus: responseData.creationStatus,
-      errors: responseData.errors || []
-    };
-
-  } catch (error) {
-
-    const errorBody = error.response?.data;
-
-    let errorList = ["An unexpected error occurred."];
-
-    if (errorBody) {
-
-      if (errorBody.errors) {
-        errorList = Object.values(errorBody.errors).flat();
+      if (res.creationStatus) {
+        return res;
       }
-      
-      else if (errorBody.data?.errors) {
-        errorList = Array.isArray(errorBody.data.errors)
-          ? errorBody.data.errors
-          : Object.values(errorBody.data.errors).flat();
+      else {
+        return thunkAPI.rejectWithValue(res);
       }
-      
-      else if (errorBody.message) {
-        errorList = [errorBody.message];
+    } catch (error) {
+
+      const errorBody = error.response?.data;
+      let errorList = ["An unexpected error occurred."];
+
+      if (errorBody) {
+        if (errorBody.errors) {
+          errorList = Object.values(errorBody.errors).flat();
+        } else if (errorBody.data?.errors) {
+          errorList = Array.isArray(errorBody.data.errors)
+            ? errorBody.data.errors
+            : Object.values(errorBody.data.errors).flat();
+        } else if (errorBody.message) {
+          errorList = [errorBody.message];
+        }
+      } else if (error.request) {
+        errorList = ["Cannot connect to server. Please check your API."];
       }
+
+      return thunkAPI.rejectWithValue(errorList);
     }
-    else if (error.request) {
-      errorList = ["Cannot connect to server. Please check your API."];
-    }
-
-    return {
-      creationStatus: false,
-      errors: errorList
-    };
   }
-};
+
+);
+
+
 
 export const logout = async () => {
 
