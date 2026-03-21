@@ -5,56 +5,65 @@ import '../css/RegisterPage.css'
 
 import { useRouteNavigation } from '../../../utils/hooks/navigateRoute';
 
-
+import { useDispatch, useSelector } from 'react-redux';
+import { handleRegisterFormField, clearRegisterForm } from '../../../features/auth/authSlice'
 import { register } from '../../../services/authService';
+import Alert from '../../../interface/common/error/component/Alert';
 
 function RegisterPage() {
 
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [email, setEmail] = useState("");
-    const [userName, setUserName] = useState("");
-    const [password, setPassword] = useState("");
-
-    const [loading, setLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState(false);
+    const { registerForm, isLoading } = useSelector((state) => state.auth);
+    const [alert, setAlert] = useState({ message: '', type: 'error' });
 
     const { navigateToRoute } = useRouteNavigation();
+
+    const dispatch = useDispatch();
+
+    const handleRegisterChange = (e) => {
+        dispatch(handleRegisterFormField({ field: e.target.name, value: e.target.value }));
+    }
 
     const handleRegister = async (e) => {
 
         e.preventDefault();
 
+        let firstName = registerForm.firstName;
+        let lastName = registerForm.lastName;
+        let email = registerForm.email;
+        let username = registerForm.username;
+        let password = registerForm.password;
+
         try {
 
-            setLoading(true);
+            await dispatch(register({ firstName, lastName, email, username, password })).unwrap();
 
-            const result = await register(firstName, lastName, email, userName, password);
 
-            if (result.creationStatus) {
-                alert("Registration Successful! Please login your account.");
-
-                navigateToRoute("/login");
-            } else {
-                setErrorMessage(result.errors);
-            }
+            setAlert({
+                message: "User registration successful!",
+                type: 'success'
+            });
 
         } catch (err) {
-            alert(`Connection Error: ${err}`);
-        } finally {
-            setLoading(false);
-        }
+            const formattedError = Array.isArray(err)
+                ? err.join("\n")
+                : (err.message || "An unexpected error occurred.");
+
+            setAlert({
+                message: formattedError,
+                type: 'error'
+            });
+        } 
     };
 
     const handleNavigate = () => {
         navigateToRoute("/login");
+        dispatch(clearRegisterForm());
     }
 
     return (
         <div className="register-container">
             <div className="register-card">
 
-                {/* Back Button positioned at the top */}
                 <div className="back-nav">
                     <button type="button" onClick={handleNavigate} className="icon-button">
                         <ArrowLeft size={20} />
@@ -64,20 +73,12 @@ function RegisterPage() {
                 <h1>HR Leave Management System</h1>
 
                 <div className="error-container" style={{ marginBottom: '15px' }}>
-                    {errorMessage ? (
-                        <ul style={{
-                            color: '#b91c1c',
-                            textAlign: 'left',
-                            fontSize: '14px',
-                            paddingLeft: '20px'
-                        }}>
-                            {/* If errorMessage is an array, map it. If it's a string, wrap it in an array first */}
-                            {(Array.isArray(errorMessage) ? errorMessage : [errorMessage]).map((error, index) => (
-                                <li key={index} style={{ marginBottom: '4px' }}>
-                                    {error}
-                                </li>
-                            ))}
-                        </ul>
+                    {alert.message ? (
+                        <Alert
+                            message={alert.message}
+                            type={alert.type}
+                            onClose={() => setAlert({ ...alert, message: '' })}
+                        />
                     ) : (
                         <p style={{ fontSize: '14px', color: '#666' }}>Please fill up necessary fields</p>
                     )}
@@ -89,8 +90,9 @@ function RegisterPage() {
                         <input
                             type="First Name"
                             placeholder='First Name'
-                            value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
+                            name="firstName"
+                            value={registerForm.firstName}
+                            onChange={handleRegisterChange}
                             required
                         />
                     </div>
@@ -100,8 +102,9 @@ function RegisterPage() {
                         <input
                             type="lastName"
                             placeholder='Last Name'
-                            value={lastName}
-                            onChange={(e) => setLastName(e.target.value)}
+                            name="lastName"
+                            value={registerForm.lastName}
+                            onChange={handleRegisterChange}
                             required
                         />
                     </div>
@@ -111,8 +114,9 @@ function RegisterPage() {
                         <input
                             type="email"
                             placeholder='user@example.com'
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            name="email"
+                            value={registerForm.email}
+                            onChange={handleRegisterChange}
                             required
                         />
                     </div>
@@ -122,8 +126,9 @@ function RegisterPage() {
                         <input
                             type="username"
                             placeholder='Username'
-                            value={userName}
-                            onChange={(e) => setUserName(e.target.value)}
+                            name="username"
+                            value={registerForm.username}
+                            onChange={handleRegisterChange}
                             required
                         />
                     </div>
@@ -133,15 +138,16 @@ function RegisterPage() {
                         <input
                             type="password"
                             placeholder='Password'
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            name="password"
+                            value={registerForm.password}
+                            onChange={handleRegisterChange}
                             required
                         />
                     </div>
 
                     <div className="button-group">
-                        <button type="submit" disabled={loading}>
-                            {loading ? "Please wait..." : "Submit"}
+                        <button type="submit" disabled={isLoading}>
+                            {isLoading ? "Please wait..." : "Submit"}
                         </button>
                     </div>
                 </form>

@@ -6,16 +6,27 @@ import {
 
 import {
     applyLeaveRequest,
-    getUserLeaveRequests
+    getUserLeaveRequests,
+    updateLeaveRequest,
+    deleteLeaveRequest,
 } from '../../services/leaveRequestService';
 
 import {
     getLeaveTypes
 } from '../../services/leaveTypeService';
 
+const initialLeaveFormState = {
+    leaveTypeId: '',
+    startDate: '',
+    endDate: '',
+    requestedComments: ''
+};
+
 const leaveSlice = createSlice({
     name: 'leave',
     initialState: {
+        createLeaveForm: initialLeaveFormState,
+        updateLeaveForm: initialLeaveFormState,
         sickDays: null,
         vacationDays: null,
         totalAllocatedDays: null,
@@ -25,6 +36,17 @@ const leaveSlice = createSlice({
         error: null,
     },
     reducers: {
+        handleCreateFormField: (state, action) => {
+            const { name, value } = action.payload;
+            state.createLeaveForm[name] = value;
+        },
+        handleUpdateFormField: (state, action) => {
+            const { name, value } = action.payload;
+            state.updateLeaveForm[name] = value;
+        },
+        clearUpdateForm: (state) => {
+            state.updateLeaveForm = initialLeaveFormState;
+        },
         clearError: (state) => {
             state.error = null;
         },
@@ -71,8 +93,39 @@ const leaveSlice = createSlice({
             })
             .addCase(applyLeaveRequest.fulfilled, (state, action) => {
                 state.isLoading = false;
+
+                // Clear leave inputs
+                state.createLeaveForm = initialLeaveFormState;
             })
             .addCase(applyLeaveRequest.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
+
+            .addCase(updateLeaveRequest.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(updateLeaveRequest.fulfilled, (state, action) => {
+                state.isLoading = false;
+
+                // Clear leave inputs
+                state.updateLeaveForm = initialLeaveFormState;
+            })
+            .addCase(updateLeaveRequest.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
+
+            .addCase(deleteLeaveRequest.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(deleteLeaveRequest.fulfilled, (state, action) => {
+                state.isLoading = false;
+
+            })
+            .addCase(deleteLeaveRequest.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
             })
@@ -93,5 +146,5 @@ const leaveSlice = createSlice({
     }
 });
 
-export const { clearError } = leaveSlice.actions;
+export const { clearError, handleCreateFormField, handleUpdateFormField, clearUpdateForm, resetForm } = leaveSlice.actions;
 export default leaveSlice.reducer;

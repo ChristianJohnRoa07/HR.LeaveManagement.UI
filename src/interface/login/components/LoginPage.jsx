@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { login } from '../../../services/authService'
 
-import { clearError } from '../../../features/auth/authSlice'
+import { handleLoginFormField, clearLoginForm, clearError } from '../../../features/auth/authSlice'
 
 import { useRouteNavigation } from '../../../utils/hooks/navigateRoute';
 
@@ -13,16 +13,13 @@ import Alert from '../../../interface/common/error/component/Alert';
 
 function LoginPage() {
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-
-     const [alert, setAlert] = useState({ message: '', type: 'error' });
-
     const dispatch = useDispatch();
 
     const { navigateToRoute } = useRouteNavigation();
 
-    const { user, isLoading } = useSelector((state) => state.auth)
+    const { loginForm, user, isLoading } = useSelector((state) => state.auth);
+
+    const [alert, setAlert] = useState({ message: '', type: 'error' });
 
     // Successful login navigate to dashboard
     useEffect(() => {
@@ -31,34 +28,47 @@ function LoginPage() {
         }
     }, [user, navigateToRoute])
 
+    const handleLoginChange = (e) => {
+        dispatch(handleLoginFormField({ field: e.target.name, value: e.target.value }));
+    }
+
     const handleLogin = async (e) => {
 
         e.preventDefault(); // Prevents the page from refreshing
 
         try {
+            let email = loginForm.email;
+            let password = loginForm.password;
+
             // .unwrap() allows you to treat the thunk like a normal promise
             // It will throw an error if the thunk returns rejectWithValue
             await dispatch(login({ email, password })).unwrap();
 
-            cleanInputs();
+            // cleanInputs();
 
         } catch (error) {
-            setAlert({ 
-                message: error || "Invalid credentials. Please try again.", 
-                type: 'error' 
+            const errorMessage = typeof error === 'object'
+                ? (error.message || "Invalid credentials. Please try again.")
+                : error;
+
+            setAlert({
+                message: errorMessage,
+                type: 'error'
             });
-            setPassword('');
+
+            dispatch(handleLoginFormField({ field: 'password', value: '' }));
         }
     };
 
     const handleNavigate = () => {
         navigateToRoute("/register");
         dispatch(clearError());
+
+        cleanInputs();
     }
 
     const cleanInputs = () => {
-        setEmail('');
-        setPassword('');
+        dispatch(clearLoginForm());
     }
 
     return (
@@ -80,9 +90,10 @@ function LoginPage() {
                     <div className="input-group">
                         <label>Email Address</label>
                         <input
+                            name="email"
                             type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={loginForm.email}
+                            onChange={handleLoginChange}
                             required
                         />
                     </div>
@@ -90,9 +101,10 @@ function LoginPage() {
                     <div className="input-group">
                         <label>Password</label>
                         <input
+                            name="password"
                             type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            value={loginForm.password}
+                            onChange={handleLoginChange}
                             required
                         />
                     </div>

@@ -6,18 +6,12 @@ import '../css/ApplyLeave.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { getLeaveTypes } from '../../../../services/leaveTypeService';
 import { applyLeaveRequest } from '../../../../services/leaveRequestService';
+import { handleCreateFormField } from '../../../../features/leave/leaveSlice';
 
 const ApplyLeave = () => {
     const dispatch = useDispatch();
 
-    const { leaveTypes, isLoading } = useSelector((state) => state.leave);
-
-    const [formData, setFormData] = useState({
-        leaveTypeId: '',
-        startDate: '',
-        endDate: '',
-        requestedComments: ''
-    });
+    const { createLeaveForm, leaveTypes, isLoading } = useSelector((state) => state.leave);
 
     const [alert, setAlert] = useState({ message: '', type: 'error' });
 
@@ -30,21 +24,26 @@ const ApplyLeave = () => {
     }, [leaveTypes.length, dispatch]);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        dispatch(updateCreateFormField({ name: e.target.name, value: e.target.value }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const result = await dispatch(applyLeaveRequest(formData)).unwrap();
+            const result = await dispatch(applyLeaveRequest(createLeaveForm)).unwrap();
             setAlert({
-                message: result.message || "Leave request submitted successfully!",
+                message: result?.message || "Leave request submitted successfully!",
                 type: 'success'
             });
         } catch (err) {
-            setAlert({ message: err, type: 'error' });
+            const errorMessage = typeof err === 'object' 
+                ? (err.message || JSON.stringify(err)) 
+                : err;
+            setAlert({ message: errorMessage, type: 'error' });
         }
     };
+
+    if (!createLeaveForm) return null;
 
     return (
         <MainLayout alert={alert} setAlert={setAlert}>
@@ -61,7 +60,7 @@ const ApplyLeave = () => {
                             <select
                                 name="leaveTypeId"
                                 required
-                                value={formData.leaveTypeId}
+                                value={createLeaveForm.leaveTypeId}
                                 onChange={handleChange}
                             >
                                 <option value="">Select a leave type</option>
@@ -80,7 +79,7 @@ const ApplyLeave = () => {
                                     type="date"
                                     name="startDate"
                                     required
-                                    value={formData.startDate}
+                                    value={createLeaveForm.startDate}
                                     onChange={handleChange}
                                 />
                             </div>
@@ -90,7 +89,7 @@ const ApplyLeave = () => {
                                     type="date"
                                     name="endDate"
                                     required
-                                    value={formData.endDate}
+                                    value={createLeaveForm.endDate}
                                     onChange={handleChange}
                                 />
                             </div>
@@ -102,7 +101,7 @@ const ApplyLeave = () => {
                                 name="requestedComments"
                                 placeholder="Reason for leave..."
                                 rows="4"
-                                value={formData.requestedComments}
+                                value={createLeaveForm.requestedComments}
                                 onChange={handleChange}
                             ></textarea>
                         </div>
