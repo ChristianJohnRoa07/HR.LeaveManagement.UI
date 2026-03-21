@@ -88,3 +88,133 @@ export const applyLeaveRequest = createAsyncThunk(
         }
     }
 );
+
+export const updateLeaveRequest = createAsyncThunk(
+    'user/updateLeaveRequest',
+    async (leaveData, { rejectWithValue }) => {
+
+        try {
+            // Grab the auth data directly from your existing authSlice state
+            const userData = retrieveSession();
+            const user = userData
+
+            if (!user || !user.token) {
+                return rejectWithValue("No valid session found");
+            }
+
+            const response = await axios.put(
+                `https://localhost:7047/api/LeaveRequests`,
+                {
+                    id: leaveData.id,
+                    startDate: leaveData.startDate,
+                    endDate: leaveData.endDate,
+                    leaveTypeId: leaveData.leaveTypeId,
+                    requestedComments: leaveData.requestedComments
+                },
+                {
+                    headers: { Authorization: `Bearer ${user.token}` }
+                }
+            );
+
+            const result = response.data;
+
+            if (result.success) {
+                return result.data; // This becomes the action.payload
+            } else {
+                const apiError = response.data.data?.errors?.[0] || response.data.data?.message;
+                return rejectWithValue(apiError || "Submission failed");
+            }
+        } catch (error) {
+            const serverResponse = error.response?.data;
+            
+            const errorMessage = serverResponse?.data?.errors?.[0] 
+                || serverResponse?.data?.message 
+                || error.message;
+
+            return rejectWithValue(errorMessage);
+        }
+    }
+);
+
+export const deleteLeaveRequest = createAsyncThunk(
+    'user/deleteLeaveRequest',
+    async (leaveRequestId, { rejectWithValue }) => {
+
+        try {
+            // Grab the auth data directly from your existing authSlice state
+            const userData = retrieveSession();
+            const user = userData
+
+            if (!user || !user.token) {
+                return rejectWithValue("No valid session found");
+            }
+
+            const response = await axios.delete(
+                `https://localhost:7047/api/LeaveRequests/${leaveRequestId}`,
+                {
+                    headers: { Authorization: `Bearer ${user.token}` }
+                }
+            );
+
+            const result = response.data;
+
+            if (result.success) {
+                return result.data; // This becomes the action.payload
+            } else {
+                const apiError = response.data.data?.errors?.[0] || response.data.data?.message;
+                return rejectWithValue(apiError || "Submission failed");
+            }
+        } catch (error) {
+            const serverResponse = error.response?.data;
+            
+            const errorMessage = serverResponse?.data?.errors?.[0] 
+                || serverResponse?.data?.message 
+                || error.message;
+
+            return rejectWithValue(errorMessage);
+        }
+    }
+);
+
+export const cancelLeaveRequest = createAsyncThunk(
+    'user/cancelLeaveRequest',
+    async (leaveRequestId, { rejectWithValue }) => {
+
+        try {
+            // Grab the auth data directly from your existing authSlice state
+            const userData = retrieveSession();
+            const user = userData
+
+            if (!user || !user.token) {
+                return rejectWithValue("No valid session found");
+            }
+
+            const response = await axios.put(
+                `https://localhost:7047/api/LeaveRequests/${leaveRequestId}/cancel`,
+                {
+                    cancelled: true
+                },
+                {
+                    headers: { Authorization: `Bearer ${user.token}` }
+                }
+            );
+
+            const result = response.data;
+
+            if (result.success) {
+                return result.data; // This becomes the action.payload
+            } else {
+                const apiError = response.data.data?.errors?.[0] || response.data.data?.message;
+                return rejectWithValue(apiError || "Submission failed");
+            }
+        } catch (error) {
+            const serverResponse = error.response?.data;
+            
+            const errorMessage = serverResponse?.data?.errors?.[0] 
+                || serverResponse?.data?.message 
+                || error.message;
+
+            return rejectWithValue(errorMessage);
+        }
+    }
+);
