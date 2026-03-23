@@ -6,7 +6,8 @@ import '../css/ApplyLeave.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { getLeaveTypes } from '../../../../services/leaveTypeService';
 import { applyLeaveRequest } from '../../../../services/leaveRequestService';
-import { handleCreateFormField } from '../../../../features/leave/leaveSlice';
+import { handleCreateFormField, clearCreateForm } from '../../../../features/leave/leaveSlice';
+import { useRouteNavigation } from '../../..//../utils/hooks/navigateRoute';
 
 const ApplyLeave = () => {
     const dispatch = useDispatch();
@@ -15,16 +16,22 @@ const ApplyLeave = () => {
 
     const [alert, setAlert] = useState({ message: '', type: 'error' });
 
+    const { navigateToRoute } = useRouteNavigation();
+
     useEffect(() => {
         if (leaveTypes.length === 0) {
             Promise.all([
                 dispatch(getLeaveTypes()).unwrap(),
             ]).catch(err => setAlert({ message: "Failed to load dashboard data.", type: 'error' }));
         }
+
+        return () => {
+            dispatch(clearCreateForm());
+        };
     }, [leaveTypes.length, dispatch]);
 
     const handleChange = (e) => {
-        dispatch(updateCreateFormField({ name: e.target.name, value: e.target.value }));
+        dispatch(handleCreateFormField({ name: e.target.name, value: e.target.value }));
     };
 
     const handleSubmit = async (e) => {
@@ -36,12 +43,16 @@ const ApplyLeave = () => {
                 type: 'success'
             });
         } catch (err) {
-            const errorMessage = typeof err === 'object' 
-                ? (err.message || JSON.stringify(err)) 
+            const errorMessage = typeof err === 'object'
+                ? (err.message || JSON.stringify(err))
                 : err;
             setAlert({ message: errorMessage, type: 'error' });
         }
     };
+
+    const handleNavigate = () => {
+        navigateToRoute("/dashboard");
+    }
 
     if (!createLeaveForm) return null;
 
@@ -107,7 +118,7 @@ const ApplyLeave = () => {
                         </div>
 
                         <div className="form-actions">
-                            <button type="button" className="btn-cancel" onClick={() => window.history.back()}>
+                            <button type="button" className="btn-cancel" onClick={handleNavigate}>
                                 <XCircle size={18} /> Cancel
                             </button>
                             <button type="submit" className="btn-submit" disabled={isLoading}>
