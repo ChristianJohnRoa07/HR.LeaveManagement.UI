@@ -92,8 +92,6 @@ const Dashboard = () => {
 
         let res = "";
 
-        console.log('type',type)
-
         try {
             if (type === 'delete') {
                 const result = await dispatch(deleteLeaveRequest(request.id)).unwrap();
