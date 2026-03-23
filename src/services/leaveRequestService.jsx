@@ -52,9 +52,6 @@ export const applyLeaveRequest = createAsyncThunk(
                 return rejectWithValue("No valid session found");
             }
 
-            console.log('employeeId:', user.id)
-            console.log('leaveData', leaveData)
-
             const response = await axios.post(
                 `https://localhost:7047/api/LeaveRequests`,
                 {
