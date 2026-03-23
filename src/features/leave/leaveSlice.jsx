@@ -44,6 +44,9 @@ const leaveSlice = createSlice({
             const { name, value } = action.payload;
             state.updateLeaveForm[name] = value;
         },
+        clearCreateForm: (state) => {
+            state.createLeaveForm = initialLeaveFormState;
+        },
         clearUpdateForm: (state) => {
             state.updateLeaveForm = initialLeaveFormState;
         },
@@ -146,5 +149,5 @@ const leaveSlice = createSlice({
     }
 });
 
-export const { clearError, handleCreateFormField, handleUpdateFormField, clearUpdateForm, resetForm } = leaveSlice.actions;
+export const { clearError, handleCreateFormField, handleUpdateFormField, clearUpdateForm, clearCreateForm, resetForm } = leaveSlice.actions;
 export default leaveSlice.reducer;
